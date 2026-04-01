@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kawaii Girl</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #fce4ec, #f8bbd0, #f48fb1);
+      font-family: 'Segoe UI', sans-serif;
+      overflow: hidden;
+      user-select: none;
+      cursor: pointer;
+    }
+
+    /* Floating petals */
+    .petal {
+      position: fixed;
+      width: 12px;
+      height: 12px;
+      background: rgba(255, 183, 197, 0.7);
+      border-radius: 50% 0 50% 50%;
+      animation: fall linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes fall {
+      0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(110vh) rotate(720deg); opacity: 0.3; }
+    }
+
+    .scene {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Speech bubble */
+    .speech-bubble {
+      background: white;
+      border-radius: 20px;
+      padding: 12px 22px;
+      margin-bottom: 20px;
+      font-size: 18px;
+      color: #e91e63;
+      box-shadow: 0 4px 15px rgba(233, 30, 99, 0.15);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+      position: relative;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+    }
+
+    .speech-bubble.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .speech-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-top: 12px solid white;
+    }
+
+    /* Character container */
+    .character {
+      position: relative;
+      width: 240px;
+      height: 340px;
+      transition: transform 0.3s ease;
+    }
+
+    .character:hover {
+      transform: scale(1.03);
+    }
+
+    .character.shy {
+      animation: shyWiggle 0.5s ease;
+    }
+
+    @keyframes shyWiggle {
+      0%, 100% { transform: rotate(0deg); }
+      20% { transform: rotate(-5deg) translateX(-5px); }
+      40% { transform: rotate(3deg) translateX(3px); }
+      60% { transform: rotate(-3deg) translateX(-3px); }
+      80% { transform: rotate(2deg) translateX(2px); }
+    }
+
+    /* Hair */
+    .hair-back {
+      position: absolute;
+      width: 180px;
+      height: 200px;
+      background: #1a1a2e;
+      border-radius: 90px 90px 40px 40px;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1;
+    }
+
+    .hair-side-left, .hair-side-right {
+      position: absolute;
+      width: 45px;
+      height: 160px;
+      background: #1a1a2e;
+      top: 80px;
+      z-index: 3;
+      border-radius: 0 0 20px 20px;
+    }
+
+    .hair-side-left { left: 22px; }
+    .hair-side-right { right: 22px; }
+
+    .bangs {
+      position: absolute;
+      width: 170px;
+      height: 70px;
+      background: #1a1a2e;
+      border-radius: 85px 85px 30px 30px;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 5;
+    }
+
+    /* Face */
+    .face {
+      position: absolute;
+      width: 150px;
+      height: 160px;
+      background: #ffe6e6;
+      border-radius: 75px 75px 60px 60px;
+      top: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+    }
+
+    /* Eyes */
+    .eyes {
+      position: absolute;
+      top: 70px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 40px;
+      z-index: 6;
+    }
+
+    .eye {
+      width: 28px;
+      height: 30px;
+      background: #1a1a2e;
+      border-radius: 50%;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    .eye::after {
+      content: '';
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: white;
+      border-radius: 50%;
+      top: 5px;
+      left: 5px;
+    }
+
+    .eye.happy {
+      height: 8px;
+      border-radius: 20px 20px 0 0;
+      background: #1a1a2e;
+    }
+
+    .eye.happy::after {
+      display: none;
+    }
+
+    /* Eyebrows */
+    .eyebrow {
+      position: absolute;
+      width: 20px;
+      height: 4px;
+      background: #1a1a2e;
+      border-radius: 2px;
+      top: 60px;
+      z-index: 6;
+      transition: all 0.3s ease;
+    }
+
+    .eyebrow.left { left: 72px; transform: rotate(-5deg); }
+    .eyebrow.right { right: 72px; transform: rotate(5deg); }
+
+    .eyebrow.shy-left { transform: rotate(-15deg) translateY(-3px); }
+    .eyebrow.shy-right { transform: rotate(15deg) translateY(-3px); }
+
+    /* Mouth */
+    .mouth {
+      position: absolute;
+      top: 115px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 6;
+      transition: all 0.2s ease;
+    }
+
+    .mouth-normal {
+      width: 15px;
+      height: 8px;
+      border: none;
+      border-bottom: 3px solid #e57373;
+      border-radius: 0 0 50% 50%;
+    }
+
+    .mouth-smile {
+      width: 25px;
+      height: 14px;
+      border-bottom: 3px solid #e57373;
+      border-left: 3px solid #e57373;
+      border-right: 3px solid #e57373;
+      border-radius: 0 0 50% 50%;
+      border-top: none;
+    }
+
+    .mouth-laugh {
+      width: 30px;
+      height: 20px;
+      background: #e57373;
+      border-radius: 0 0 50% 50%;
+      position: relative;
+    }
+
+    .mouth-laugh::after {
+      content: '';
+      position: absolute;
+      bottom: 3px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 16px;
+      height: 6px;
+      background: #ff8a80;
+      border-radius: 0 0 50% 50%;
+    }
+
+    /* Blush */
+    .blush {
+      position: absolute;
+      width: 30px;
+      height: 18px;
+      background: rgba(255, 100, 100, 0.35);
+      border-radius: 50%;
+      top: 100px;
+      z-index: 6;
+      transition: all 0.3s ease;
+      opacity: 0.4;
+    }
+
+    .blush.left { left: 52px; }
+    .blush.right { right: 52px; }
+
+    .blush.active {
+      opacity: 1;
+      background: rgba(255, 80, 80, 0.5);
+      width: 35px;
+      height: 22px;
+    }
+
+    /* Body */
+    .body {
+      position: absolute;
+      top: 185px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1;
+    }
+
+    .dress {
+      width: 120px;
+      height: 140px;
+      background: linear-gradient(180deg, #e91e63, #ec407a, #f48fb1);
+      border-radius: 30px 30px 60px 60px;
+      position: relative;
+    }
+
+    .dress::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 25px;
+      background: white;
+      border-radius: 0 0 30px 30px;
+    }
+
+    /* Ribbon on dress */
+    .ribbon {
+      position: absolute;
+      top: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+    }
+
+    .ribbon::before, .ribbon::after {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 12px;
+      background: #ff80ab;
+      border-radius: 50%;
+    }
+
+    .ribbon::before { left: -16px; top: -4px; transform: rotate(-20deg); }
+    .ribbon::after { right: -16px; top: -4px; transform: rotate(20deg); }
+
+    .ribbon-center {
+      width: 8px;
+      height: 8px;
+      background: #f50057;
+      border-radius: 50%;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Arms */
+    .arm {
+      position: absolute;
+      width: 25px;
+      height: 80px;
+      background: #ffe6e6;
+      border-radius: 12px;
+      top: 10px;
+      transition: all 0.4s ease;
+      z-index: 0;
+    }
+
+    .arm.left { left: -15px; transform: rotate(10deg); }
+    .arm.right { right: -15px; transform: rotate(-10deg); }
+
+    .arm.left.shy { transform: rotate(30deg) translateX(10px) translateY(-10px); }
+    .arm.right.shy { transform: rotate(-30deg) translateX(-10px) translateY(-10px); }
+
+    /* Hair accessory */
+    .hair-bow {
+      position: absolute;
+      top: 25px;
+      right: 30px;
+      z-index: 6;
+    }
+
+    .hair-bow::before, .hair-bow::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 14px;
+      background: #ff4081;
+      border-radius: 50%;
+    }
+
+    .hair-bow::before { left: -14px; top: -2px; transform: rotate(-30deg); }
+    .hair-bow::after { right: -14px; top: -2px; transform: rotate(30deg); }
+
+    .bow-center {
+      width: 8px;
+      height: 8px;
+      background: #e91e63;
+      border-radius: 50%;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Hearts animation */
+    .heart {
+      position: absolute;
+      font-size: 20px;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .heart.float {
+      animation: floatHeart 1.5s ease forwards;
+    }
+
+    @keyframes floatHeart {
+      0% { opacity: 1; transform: translateY(0) scale(0.5); }
+      50% { opacity: 1; transform: translateY(-40px) scale(1); }
+      100% { opacity: 0; transform: translateY(-80px) scale(0.8); }
+    }
+
+    /* Sparkle */
+    .sparkle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: #ffeb3b;
+      border-radius: 50%;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .sparkle.pop {
+      animation: sparklePop 0.6s ease forwards;
+    }
+
+    @keyframes sparklePop {
+      0% { opacity: 1; transform: scale(0); }
+      50% { opacity: 1; transform: scale(1.5); }
+      100% { opacity: 0; transform: scale(0); }
+    }
+
+    /* Instruction text */
+    .instruction {
+      margin-top: 30px;
+      color: #ad1457;
+      font-size: 16px;
+      opacity: 0.7;
+      animation: pulse 2s ease infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="scene">
+    <div class="speech-bubble" id="speechBubble">
+      <span id="speechText">Hi there! ~</span>
+    </div>
+
+    <div class="character" id="character">
+      <!-- Hair back -->
+      <div class="hair-back"></div>
+      <div class="hair-side-left"></div>
+      <div class="hair-side-right"></div>
+
+      <!-- Face -->
+      <div class="face">
+        <div class="eyebrow left" id="eyebrowLeft"></div>
+        <div class="eyebrow right" id="eyebrowRight"></div>
+        <div class="eyes">
+          <div class="eye" id="eyeLeft"></div>
+          <div class="eye" id="eyeRight"></div>
+        </div>
+        <div class="blush left" id="blushLeft"></div>
+        <div class="blush right" id="blushRight"></div>
+        <div class="mouth" id="mouth">
+          <div class="mouth-normal" id="mouthShape"></div>
+        </div>
+      </div>
+
+      <!-- Bangs (over forehead) -->
+      <div class="bangs"></div>
+
+      <!-- Hair bow -->
+      <div class="hair-bow">
+        <div class="bow-center"></div>
+      </div>
+
+      <!-- Body -->
+      <div class="body">
+        <div class="dress">
+          <div class="ribbon">
+            <div class="ribbon-center"></div>
+          </div>
+          <div class="arm left" id="armLeft"></div>
+          <div class="arm right" id="armRight"></div>
+        </div>
+      </div>
+    </div>
+
+    <p class="instruction">~ Touch her to say hello ~</p>
+  </div>
+
+  <script>
+    const character = document.getElementById('character');
+    const speechBubble = document.getElementById('speechBubble');
+    const speechText = document.getElementById('speechText');
+    const eyeLeft = document.getElementById('eyeLeft');
+    const eyeRight = document.getElementById('eyeRight');
+    const blushLeft = document.getElementById('blushLeft');
+    const blushRight = document.getElementById('blushRight');
+    const mouth = document.getElementById('mouth');
+    const mouthShape = document.getElementById('mouthShape');
+    const armLeft = document.getElementById('armLeft');
+    const armRight = document.getElementById('armRight');
+    const eyebrowLeft = document.getElementById('eyebrowLeft');
+    const eyebrowRight = document.getElementById('eyebrowRight');
+
+    const shyMessages = [
+      "Kyaa~! Don't touch me! >.<",
+      "Ehehe~ That tickles! >///<",
+      "Mou~! So embarrassing!",
+      "Awawawa~! *blushes*",
+      "S-stop it~! Hehe~",
+      "Nyaa~! You surprised me!",
+      "H-hey~! That's embarrassing!",
+      "Uwaah~! *hides face*",
+      "E-ehehe~ you're so bold!",
+      "Kya~! My heart is racing!",
+    ];
+
+    let isAnimating = false;
+    let touchCount = 0;
+
+    // Create floating cherry blossom petals
+    function createPetals() {
+      for (let i = 0; i < 15; i++) {
+        const petal = document.createElement('div');
+        petal.className = 'petal';
+        petal.style.left = Math.random() * 100 + 'vw';
+        petal.style.animationDuration = (Math.random() * 5 + 5) + 's';
+        petal.style.animationDelay = (Math.random() * 10) + 's';
+        petal.style.width = (Math.random() * 8 + 8) + 'px';
+        petal.style.height = petal.style.width;
+        petal.style.opacity = Math.random() * 0.5 + 0.3;
+        document.body.appendChild(petal);
+      }
+    }
+
+    // Spawn floating hearts
+    function spawnHeart(x, y) {
+      const heart = document.createElement('div');
+      heart.className = 'heart';
+      heart.textContent = ['❤', '💕', '💗', '✨', '💖'][Math.floor(Math.random() * 5)];
+      heart.style.left = (x + (Math.random() * 60 - 30)) + 'px';
+      heart.style.top = (y - 20) + 'px';
+      heart.style.fontSize = (Math.random() * 12 + 16) + 'px';
+      document.querySelector('.scene').appendChild(heart);
+
+      requestAnimationFrame(() => heart.classList.add('float'));
+      setTimeout(() => heart.remove(), 1500);
+    }
+
+    // Spawn sparkles
+    function spawnSparkles(x, y) {
+      for (let i = 0; i < 5; i++) {
+        const sparkle = document.createElement('div');
+        sparkle.className = 'sparkle';
+        sparkle.style.left = (x + (Math.random() * 80 - 40)) + 'px';
+        sparkle.style.top = (y + (Math.random() * 80 - 40)) + 'px';
+        document.querySelector('.scene').appendChild(sparkle);
+
+        setTimeout(() => {
+          sparkle.classList.add('pop');
+          setTimeout(() => sparkle.remove(), 600);
+        }, Math.random() * 200);
+      }
+    }
+
+    function triggerShyReaction(e) {
+      if (isAnimating) return;
+      isAnimating = true;
+      touchCount++;
+
+      const rect = character.getBoundingClientRect();
+      const sceneRect = document.querySelector('.scene').getBoundingClientRect();
+      const relX = rect.left - sceneRect.left + rect.width / 2;
+      const relY = rect.top - sceneRect.top;
+
+      // Wiggle animation
+      character.classList.add('shy');
+
+      // Happy eyes (closed)
+      eyeLeft.classList.add('happy');
+      eyeRight.classList.add('happy');
+
+      // Intense blush
+      blushLeft.classList.add('active');
+      blushRight.classList.add('active');
+
+      // Shy eyebrows
+      eyebrowLeft.classList.add('shy-left');
+      eyebrowRight.classList.add('shy-right');
+
+      // Arms up (shy pose)
+      armLeft.classList.add('shy');
+      armRight.classList.add('shy');
+
+      // Laughing mouth
+      mouthShape.className = touchCount % 2 === 0 ? 'mouth-laugh' : 'mouth-smile';
+
+      // Show speech
+      const msg = shyMessages[Math.floor(Math.random() * shyMessages.length)];
+      speechText.textContent = msg;
+      speechBubble.classList.add('visible');
+
+      // Spawn hearts and sparkles
+      for (let i = 0; i < 3; i++) {
+        setTimeout(() => spawnHeart(relX, relY), i * 200);
+      }
+      spawnSparkles(relX, relY);
+
+      // Reset after delay
+      setTimeout(() => {
+        character.classList.remove('shy');
+        eyeLeft.classList.remove('happy');
+        eyeRight.classList.remove('happy');
+        blushLeft.classList.remove('active');
+        blushRight.classList.remove('active');
+        eyebrowLeft.classList.remove('shy-left');
+        eyebrowRight.classList.remove('shy-right');
+        armLeft.classList.remove('shy');
+        armRight.classList.remove('shy');
+        mouthShape.className = 'mouth-normal';
+        speechBubble.classList.remove('visible');
+        isAnimating = false;
+      }, 2000);
+    }
+
+    character.addEventListener('click', triggerShyReaction);
+    character.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      triggerShyReaction(e);
+    });
+
+    // Initialize
+    createPetals();
+
+    // Show greeting after a moment
+    setTimeout(() => {
+      speechBubble.classList.add('visible');
+      setTimeout(() => speechBubble.classList.remove('visible'), 3000);
+    }, 500);
+  </script>
+</body>
+</html>
