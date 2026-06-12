@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.env
+seen_symbols.json
+.pytest_cache/
+venv/
+.venv/
