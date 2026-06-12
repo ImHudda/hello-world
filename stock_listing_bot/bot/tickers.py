@@ -19,7 +19,8 @@ KNOWN_TICKERS: frozenset[str] = frozenset(
         "QCOM", "QQQ", "SBUX", "SHOP", "SMCI", "SNAP", "SPY", "SQ", "T",
         "TGT", "TSLA", "TSM", "UBER", "UNH", "V", "WMT", "XOM",
         # Pre-IPO / private names that have appeared as tokenized assets.
-        "SPACEX", "OPENAI", "STRIPE", "ANTHROPIC", "DATABRICKS", "BYTEDANCE",
+        # (Exchanges sometimes abbreviate, e.g. Gate lists SpaceX as SPCX.)
+        "SPACEX", "SPCX", "OPENAI", "STRIPE", "ANTHROPIC", "DATABRICKS", "BYTEDANCE",
     }
 )
 
